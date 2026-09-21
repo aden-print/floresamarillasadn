@@ -8,7 +8,27 @@ interface SpecialActionAnimationProps {
   onComplete: () => void;
 }
 
-function buildItems(type: string) {
+// Tipo unificado con todas las propiedades posibles como opcionales
+interface AnimItem {
+  id: number;
+  x?: number;
+  y?: number;
+  delay?: number;
+  duration?: number;
+  size?: number;
+  sway?: number;
+  wobble?: number;
+  emoji?: string;
+  color?: string;
+  startX?: number;
+  startY?: number;
+  length?: number;
+  angle?: number;
+  targetX?: number;
+  targetY?: number;
+}
+
+function buildItems(type: string): AnimItem[] {
   switch (type) {
     case 'sunflowers':
       return Array.from({ length: 22 }).map((_, i) => ({
@@ -66,7 +86,7 @@ function buildItems(type: string) {
       }));
 
     case 'celebration':
-    case 'cosmic_sparks': {
+    case 'cosmic_sparks':
       return Array.from({ length: 32 }).map((_, i) => {
         const angle = (i * 360) / 32;
         const dist = 120 + (i % 4) * 50;
@@ -78,7 +98,6 @@ function buildItems(type: string) {
           size: 6 + (i % 4) * 3,
         };
       });
-    }
 
     case 'breeze': {
       const flowerEmojis = ['🌸', '🌼', '🌺', '✿', '🏵️', '❀'];
@@ -93,7 +112,7 @@ function buildItems(type: string) {
       }));
     }
 
-    case 'starlight': {
+    case 'starlight':
       return Array.from({ length: 35 }).map((_, i) => ({
         id: i,
         x: 2 + (i * 2.7 + (i % 9) * 3) % 96,
@@ -103,7 +122,6 @@ function buildItems(type: string) {
         size: 12 + (i % 5) * 8,
         color: ['#FFD700', '#FFFFFF', '#FFF59D', '#FFFDE7', '#FFECB3'][i % 5],
       }));
-    }
 
     default:
       return [];
@@ -115,31 +133,24 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
   onComplete,
 }) => {
   const [active, setActive] = useState<string | null>(null);
-  const itemsRef = useRef<ReturnType<typeof buildItems>>([]);
+  const itemsRef = useRef<AnimItem[]>([]);
 
   useEffect(() => {
-    if (!actionType) {
-      setActive(null);
-      return;
-    }
+    if (!actionType) { setActive(null); return; }
     itemsRef.current = buildItems(actionType);
     setActive(actionType);
-
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 4200);
-
+    const timer = setTimeout(() => onComplete(), 4200);
     return () => clearTimeout(timer);
   }, [actionType, onComplete]);
 
   if (!active) return null;
-
   const items = itemsRef.current;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden select-none">
       <AnimatePresence mode="wait">
 
+        {/* 1. ABRAZO CÁLIDO */}
         {active === 'hug' && (
           <motion.div key="hug" className="absolute inset-0 flex items-center justify-center"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -164,13 +175,14 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
           </motion.div>
         )}
 
+        {/* 2. LLUVIA DE GIRASOLES */}
         {active === 'sunflowers' && (
           <motion.div key="sunflowers" className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ left: `${item.x}%`, top: '-8%', width: item.size, height: item.size }}
+                style={{ left: `${item.x ?? 0}%`, top: '-8%', width: item.size, height: item.size }}
                 initial={{ y: -40, opacity: 0, rotate: 0 }}
-                animate={{ y: ['0vh', '112vh'], x: [0, item.sway, -item.sway, 0], rotate: [0, 360], opacity: [0, 1, 1, 0] }}
+                animate={{ y: ['0vh', '112vh'], x: [0, item.sway ?? 0, -(item.sway ?? 0), 0], rotate: [0, 360], opacity: [0, 1, 1, 0] }}
                 transition={{ duration: item.duration, delay: item.delay, ease: 'easeInOut' }}>
                 <svg viewBox="0 0 60 60" className="w-full h-full drop-shadow-md">
                   {Array.from({ length: 10 }).map((_, pIdx) => (
@@ -185,13 +197,14 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
           </motion.div>
         )}
 
+        {/* 3. LLUVIA DE PÉTALOS DORADOS */}
         {active === 'petals' && (
           <motion.div key="petals" className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ left: `${item.x}%`, top: '-5%', width: item.size, height: item.size * 1.5 }}
+                style={{ left: `${item.x ?? 0}%`, top: '-5%', width: item.size, height: (item.size ?? 0) * 1.5 }}
                 initial={{ y: -30, opacity: 0, rotate: 0 }}
-                animate={{ y: ['0vh', '112vh'], x: [0, item.sway, -item.sway, 0], rotate: [0, 260], opacity: [0, 1, 1, 0] }}
+                animate={{ y: ['0vh', '112vh'], x: [0, item.sway ?? 0, -(item.sway ?? 0), 0], rotate: [0, 260], opacity: [0, 1, 1, 0] }}
                 transition={{ duration: item.duration, delay: item.delay, ease: 'easeInOut' }}>
                 <svg viewBox="0 0 30 50" className="w-full h-full drop-shadow-sm">
                   <path d="M15,0 Q28,22 15,50 Q2,22 15,0 Z" fill="#FFD700" />
@@ -201,24 +214,26 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
           </motion.div>
         )}
 
+        {/* 4. ESTRELLAS FUGACES & METEOROS */}
         {(active === 'shooting_star' || active === 'meteor') && (
           <motion.div key="shooting_star" className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ left: `${item.startX}%`, top: `${item.startY}%`, transform: `rotate(${item.angle}deg)` }}
+                style={{ left: `${item.startX ?? 0}%`, top: `${item.startY ?? 0}%`, transform: `rotate(${item.angle ?? 35}deg)` }}
                 initial={{ x: -60, y: -40, opacity: 0, scale: 0.3 }}
                 animate={{ x: [0, 700], y: [0, 450], opacity: [0, 1, 0.85, 0], scale: [0.3, 1, 0.7, 0] }}
                 transition={{ duration: item.duration, delay: item.delay, ease: 'easeOut' }}>
                 <div className="relative flex items-center">
                   <div className="w-4 h-4 rounded-full bg-white shadow-[0_0_12px_#FFF,0_0_24px_#FFD700]" />
                   <div className="h-1 bg-gradient-to-l from-transparent via-yellow-200 to-white"
-                    style={{ width: `${item.length}px`, marginLeft: '-4px' }} />
+                    style={{ width: `${item.length ?? 180}px`, marginLeft: '-4px' }} />
                 </div>
               </motion.div>
             ))}
           </motion.div>
         )}
 
+        {/* 5. NUBE DE CORAZONES */}
         {(active === 'hearts' || active === 'infinite_love') && (
           <motion.div key="hearts" className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <motion.div className="absolute inset-0"
@@ -227,12 +242,12 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
               transition={{ duration: 3.5 }} />
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ left: `${item.x}%`, bottom: '-6%', width: item.size, height: item.size }}
+                style={{ left: `${item.x ?? 0}%`, bottom: '-6%', width: item.size, height: item.size }}
                 initial={{ y: 0, opacity: 0, scale: 0.4 }}
-                animate={{ y: ['0vh', '-115vh'], x: [0, item.sway, -item.sway, 0], opacity: [0, 1, 1, 0], scale: [0.4, 1.1, 1, 0.6] }}
+                animate={{ y: ['0vh', '-115vh'], x: [0, item.sway ?? 0, -(item.sway ?? 0), 0], opacity: [0, 1, 1, 0], scale: [0.4, 1.1, 1, 0.6] }}
                 transition={{ duration: item.duration, delay: item.delay, ease: 'easeInOut' }}>
-                <svg viewBox="0 0 24 24" fill={item.color} className="w-full h-full"
-                  style={{ filter: `drop-shadow(0 0 6px ${item.color})` }}>
+                <svg viewBox="0 0 24 24" fill={item.color ?? '#FF6090'} className="w-full h-full"
+                  style={{ filter: `drop-shadow(0 0 6px ${item.color ?? '#FF6090'})` }}>
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
               </motion.div>
@@ -240,11 +255,12 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
           </motion.div>
         )}
 
+        {/* 6. MARIPOSAS DORADAS */}
         {active === 'butterflies' && (
           <motion.div key="butterflies" className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ left: `${item.x}%`, bottom: '-5%', width: item.size, height: item.size }}
+                style={{ left: `${item.x ?? 0}%`, bottom: '-5%', width: item.size, height: item.size }}
                 initial={{ y: 0, opacity: 0 }}
                 animate={{ y: ['0vh', '-115vh'], x: [0, 30, -20, 25, 0], opacity: [0, 1, 0.9, 0] }}
                 transition={{ duration: item.duration, delay: item.delay, ease: 'easeInOut' }}>
@@ -254,6 +270,7 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
           </motion.div>
         )}
 
+        {/* 7. LUZ Y CARIÑO & AMANECER */}
         {(active === 'light_burst' || active === 'sun_dawn') && (
           <motion.div key="light_burst" className="absolute inset-0 flex items-center justify-center"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -278,6 +295,7 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
           </motion.div>
         )}
 
+        {/* 8. DESTELLO DE LUCES MÁGICAS */}
         {active === 'starlight' && (
           <motion.div key="starlight" className="absolute inset-0"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -287,41 +305,43 @@ export const SpecialActionAnimation: React.FC<SpecialActionAnimationProps> = ({
               transition={{ duration: 3.5 }} />
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ left: `${item.x}%`, top: `${item.y}%` }}
+                style={{ left: `${item.x ?? 0}%`, top: `${item.y ?? 0}%` }}
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: [0, 1, 0.9, 0], scale: [0, 1.2, 1, 0] }}
                 transition={{ duration: item.duration, delay: item.delay, ease: 'easeInOut', repeat: 1, repeatDelay: 0.4 }}>
                 <svg viewBox="0 0 40 40"
-                  style={{ width: item.size, height: item.size, filter: `drop-shadow(0 0 8px ${item.color}) drop-shadow(0 0 14px ${item.color})` }}>
-                  <path d="M20,2 L22,18 L38,20 L22,22 L20,38 L18,22 L2,20 L18,18 Z" fill={item.color} />
+                  style={{ width: item.size, height: item.size, filter: `drop-shadow(0 0 8px ${item.color ?? '#FFD700'}) drop-shadow(0 0 14px ${item.color ?? '#FFD700'})` }}>
+                  <path d="M20,2 L22,18 L38,20 L22,22 L20,38 L18,22 L2,20 L18,18 Z" fill={item.color ?? '#FFD700'} />
                 </svg>
               </motion.div>
             ))}
           </motion.div>
         )}
 
+        {/* 9. CELEBRACIÓN & CHISPAS CÓSMICAS */}
         {(active === 'celebration' || active === 'cosmic_sparks') && (
           <motion.div key="celebration" className="absolute inset-0 flex items-center justify-center">
             {items.map((item) => (
               <motion.div key={item.id} className="absolute rounded-full will-change-transform"
-                style={{ backgroundColor: item.color, width: item.size, height: item.size }}
+                style={{ backgroundColor: item.color ?? '#FFD700', width: item.size, height: item.size }}
                 initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
-                animate={{ x: item.targetX, y: item.targetY, opacity: [1, 0.8, 0], scale: [0, 1.5, 0] }}
+                animate={{ x: item.targetX ?? 0, y: item.targetY ?? 0, opacity: [1, 0.8, 0], scale: [0, 1.5, 0] }}
                 transition={{ duration: 2.2, ease: 'easeOut' }} />
             ))}
           </motion.div>
         )}
 
+        {/* 10. BRISA DE FLORES Y AMOR */}
         {active === 'breeze' && (
           <motion.div key="breeze" className="absolute inset-0"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             {items.map((item) => (
               <motion.div key={item.id} className="absolute will-change-transform"
-                style={{ top: `${item.y}%`, left: '-10%' }}
+                style={{ top: `${item.y ?? 0}%`, left: '-10%' }}
                 initial={{ x: '-10vw', opacity: 0, rotate: -15 }}
                 animate={{
                   x: ['-10vw', '120vw'],
-                  y: [0, item.wobble, -item.wobble * 0.5, 0],
+                  y: [0, item.wobble ?? 0, -((item.wobble ?? 0) * 0.5), 0],
                   rotate: [-15, 5, -10, 5],
                   opacity: [0, 1, 1, 0],
                 }}
