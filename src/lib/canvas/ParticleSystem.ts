@@ -1,4 +1,4 @@
-﻿export interface Star {
+export interface Star {
   x: number;
   y: number;
   size: number;
@@ -121,25 +121,21 @@ export class ParticleSystem {
   }
 
   public drawBackgroundLayers(ctx: CanvasRenderingContext2D, time: number) {
-    if (this.isMobile) {
-      // Movil: fondo solido simple, sin gradiente (10x mas rapido)
-      ctx.fillStyle = '#06050f';
-      ctx.fillRect(0, 0, this.width, this.height);
-    } else {
-      // Desktop: gradiente nebulosa cacheado
-      if (!this.nebulaGradientCache || this.nebulaCtxRef !== ctx) {
-        const cx = this.width * 0.5;
-        const cy = this.height * 0.5;
-        const grad = ctx.createRadialGradient(cx, cy, 30, cx, cy, Math.max(this.width, this.height) * 0.85);
-        grad.addColorStop(0, 'rgba(255, 215, 0, 0.05)');
-        grad.addColorStop(0.5, 'rgba(18, 15, 43, 0.35)');
-        grad.addColorStop(1, 'rgba(3, 3, 8, 0.98)');
-        this.nebulaGradientCache = grad;
-        this.nebulaCtxRef = ctx;
-      }
-      ctx.fillStyle = this.nebulaGradientCache;
-      ctx.fillRect(0, 0, this.width, this.height);
+    // Gradiente nebulosa dorada — cacheado para todos los dispositivos
+    // Se crea UNA sola vez en resize, no cada frame → rapido en movil y desktop
+    if (!this.nebulaGradientCache || this.nebulaCtxRef !== ctx) {
+      const cx = this.width * 0.5;
+      const cy = this.height * 0.5;
+      const grad = ctx.createRadialGradient(cx, cy, 20, cx, cy, Math.max(this.width, this.height) * 0.9);
+      grad.addColorStop(0,   'rgba(255, 210, 0, 0.22)');
+      grad.addColorStop(0.3, 'rgba(200, 150, 0, 0.12)');
+      grad.addColorStop(0.6, 'rgba(18, 15, 43, 0.55)');
+      grad.addColorStop(1,   'rgba(3, 3, 8, 1.0)');
+      this.nebulaGradientCache = grad;
+      this.nebulaCtxRef = ctx;
     }
+    ctx.fillStyle = this.nebulaGradientCache;
+    ctx.fillRect(0, 0, this.width, this.height);
 
     // Estrellas — siempre fillRect (rapido)
     for (let i = 0; i < this.stars.length; i++) {
