@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Un Universo de Flores Amarillas 🌻 | 21 de Septiembre",
   description: "Una experiencia web mágica e interactiva dedicada al 21 de septiembre.",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export const viewport: Viewport = {
