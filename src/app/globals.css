@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Great+Vibes&display=swap');
+
+:root {
+  --font-serif: 'Cinzel', serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-romantic: 'Great Vibes', cursive;
+}
+
+body {
+  background-color: #030308;
+  color: #f3f4f6;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* Custom Glassmorphism */
+.glass-card {
+  background: rgba(15, 12, 35, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.6),
+    inset 0 0 20px 0 rgba(255, 215, 0, 0.08);
+}
+
+.glass-card-glow {
+  box-shadow: 
+    0 0 40px rgba(255, 215, 0, 0.25),
+    0 8px 32px 0 rgba(0, 0, 0, 0.7),
+    inset 0 0 25px 0 rgba(255, 215, 0, 0.15);
+}
+
+/* Gold Text Glow */
+.text-gold-glow {
+  color: #FFE082;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 193, 7, 0.4);
+}
+
+.font-romantic {
+  font-family: var(--font-romantic);
+}
+
+.font-cinzel {
+  font-family: var(--font-serif);
+}
+
+/* Hide scrollbars */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
