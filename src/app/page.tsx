@@ -48,7 +48,7 @@ export default function Home() {
       subtitle: 'Carta de 21 de Septiembre 🌻',
       hasSpecialButton: true,
       specialButtonText: 'Enviar Amor Infinito 💕',
-      actionType: 'love',
+      actionType: 'infinite_love',
       x: 0,
       y: 0,
       z: 1.2,
